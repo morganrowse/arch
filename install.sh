@@ -7,13 +7,13 @@ DRIVE='/dev/sda'
 HOSTNAME='arch'
 
 # Root password (leave blank to be prompted).
-ROOT_PASSWORD=''
+ROOT_PASSWORD=
 
 # Main user to create (by default, added to wheel group, and others).
 USER_NAME='morgan'
 
 # The main user's password (leave blank to be prompted).
-USER_PASSWORD=''
+USER_PASSWORD=
 
 # System timezone.
 TIMEZONE='Africa/Johannesburg'
