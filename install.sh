@@ -19,15 +19,7 @@ TMP_ON_TMPFS='TRUE'
 KEYMAP='us'
 # KEYMAP='dvorak'
 
-# Choose your video driver
-# For Intel
-#VIDEO_DRIVER="i915"
-# For nVidia
 VIDEO_DRIVER="nouveau"
-# For ATI
-#VIDEO_DRIVER="radeon"
-# For generic stuff
-#VIDEO_DRIVER="vesa"
 
 setup() {
     local boot_dev="$DRIVE"1
@@ -63,11 +55,11 @@ setup() {
 configure() {
     local boot_dev="$DRIVE"1
 
-    # echo 'Installing additional packages'
-    # install_packages
+    echo 'Installing additional packages'
+    install_packages
 
-    # echo 'Clearing package tarballs'
-    # clean_packages
+    echo 'Clearing package tarballs'
+    clean_packages
 
     echo 'Setting hostname'
     set_hostname "$HOSTNAME"
@@ -158,19 +150,8 @@ install_packages() {
     # On Intel processors
     packages+=' intel-ucode'
 
-    if [ "$VIDEO_DRIVER" = "i915" ]
-    then
-        packages+=' xf86-video-intel libva-intel-driver'
-    elif [ "$VIDEO_DRIVER" = "nouveau" ]
-    then
-        packages+=' xf86-video-nouveau'
-    elif [ "$VIDEO_DRIVER" = "radeon" ]
-    then
-        packages+=' xf86-video-ati'
-    elif [ "$VIDEO_DRIVER" = "vesa" ]
-    then
-        packages+=' xf86-video-vesa'
-    fi
+    # Nvidia Drivers
+    packages+=' xf86-video-nouveau'
 
     pacman -Sy --noconfirm $packages
 }
