@@ -102,9 +102,6 @@ configure() {
     echo 'Creating initial user'
     create_user "$USER_NAME"
 
-    echo 'Building locate database'
-    update_locate
-
     rm /setup.sh
 }
 
@@ -280,9 +277,6 @@ create_user() {
 
     useradd -m -g users -G wheel -s /bin/bash "$name"
     passwd "$name"
-}
-update_locate() {
-    updatedb
 }
 
 get_uuid() {
