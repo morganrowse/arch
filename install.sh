@@ -104,26 +104,28 @@ partition_drive() {
 
     parted -s "$drive" \
         mklabel gpt \
-        mkpart primary ext2 1MiB 513MiB \
+        mkpart ESP fat32 1MiB 513MiB \
         set 1 boot on \
-        mkpart primary linux-swap 513MiB 3G \
+        mkpart primary linux-swap 513M 3G \
         mkpart primary ext4 3G 100%
 }
 
 format_filesystems() {
     local drive="$1"; shift
 
-    mkfs.ext2 -L boot "$drive"1
-    mkfs.ext4 -L root "$drive"3
+    mkfs.fat -F32 "$drive"1
 
     mkswap "$drive"2
     swapon "$drive"2
+
+    mkfs.ext4 "$drive"3
 }
 
 mount_filesystems() {
     local drive="$1"; shift
 
     mount "$drive"3 /mnt
+
     mkdir /mnt/boot
     mount "$drive"1 /mnt/boot
 }
