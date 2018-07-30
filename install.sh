@@ -31,21 +31,16 @@ VIDEO_DRIVER="nouveau"
 
 setup() {
     local boot_dev="$DRIVE"1
-    local lvm_dev="$DRIVE"2
+    local data_dev="$DRIVE"2
 
     echo 'Creating partitions'
     partition_drive "$DRIVE"
 
-    local lvm_part="$lvm_dev"
-
-    echo 'Setting up LVM'
-    setup_lvm "$lvm_part" vg00
-
     echo 'Formatting filesystems'
-    format_filesystems "$boot_dev"
+    format_filesystems "$DRIVE"
 
     echo 'Mounting filesystems'
-    mount_filesystems "$boot_dev"
+    mount_filesystems "$DRIVE"
 
     echo 'Installing base system'
     install_base
@@ -67,7 +62,6 @@ setup() {
 
 configure() {
     local boot_dev="$DRIVE"1
-    local lvm_dev="$DRIVE"2
 
     # echo 'Installing additional packages'
     # install_packages
@@ -106,48 +100,33 @@ configure() {
 }
 
 partition_drive() {
-    local dev="$1"; shift
+    local drive="$1"; shift
 
-    parted -s "$dev" \
-        mklabel msdos \
-        mkpart primary ext2 1 100M \
-        mkpart primary ext2 100M 100% \
+    parted -s "$drive" \
+        mklabel gpt \
+        mkpart primary ext2 1MiB 513MiB \
+        mkpart primary linux-swap 513M 3G \
+        mkpart primary ext4 3G 100% \
         set 1 boot on \
-        set 2 LVM on
-}
-
-setup_lvm() {
-    local partition="$1"; shift
-    local volgroup="$1"; shift
-
-    pvcreate "$partition"
-    vgcreate "$volgroup" "$partition"
-
-    # Create a 1GB swap partition
-    lvcreate -C y -L1G "$volgroup" -n swap
-
-    # Use the rest of the space for root
-    lvcreate -l '+100%FREE' "$volgroup" -n root
-
-    # Enable the new volumes
-    vgchange -ay
+        quit
 }
 
 format_filesystems() {
-    local boot_dev="$1"; shift
+    local drive="$1"; shift
 
-    mkfs.ext2 -L boot "$boot_dev"
-    mkfs.ext4 -L root /dev/vg00/root
-    mkswap /dev/vg00/swap
+    mkfs.ext2 -L boot "$drive"1
+    mkfs.ext4 -L root "$drive"3
+
+    mkswap "$drive"2
+    swapon "$drive"2
 }
 
 mount_filesystems() {
-    local boot_dev="$1"; shift
+    local drive="$1"; shift
 
-    mount /dev/vg00/root /mnt
+    mount "$drive"3 /mnt
     mkdir /mnt/boot
-    mount "$boot_dev" /mnt/boot
-    swapon /dev/vg00/swap
+    mount "$drive"1 /mnt/boot
 }
 
 install_base() {
