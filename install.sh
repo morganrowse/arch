@@ -106,7 +106,7 @@ partition_drive() {
         mklabel gpt \
         mkpart ESP fat32 1MiB 513MiB \
         set 1 boot on \
-        mkpart primary linux-swap 513M 3G \
+        mkpart primary linux-swap 539MiB 3G \
         mkpart primary ext4 3G 100%
 }
 
