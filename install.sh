@@ -42,6 +42,8 @@ setup() {
     echo 'Mounting filesystems'
     mount_filesystems "$DRIVE"
 
+    return
+
     echo 'Installing base system'
     install_base
 
