@@ -42,8 +42,6 @@ setup() {
     echo 'Mounting filesystems'
     mount_filesystems "$DRIVE"
 
-    return
-
     echo 'Installing base system'
     install_base
 
@@ -107,9 +105,10 @@ partition_drive() {
     parted -s "$drive" \
         mklabel gpt \
         mkpart primary ext2 1MiB 513MiB \
-        set 1 boot on \
         mkpart primary linux-swap 513M 3G \
-        mkpart primary ext4 3G 100%
+        mkpart primary ext4 3G 100% \
+        set 1 boot on \
+        quit
 }
 
 format_filesystems() {
