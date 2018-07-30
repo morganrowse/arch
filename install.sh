@@ -102,9 +102,6 @@ configure() {
     echo 'Setting initial modules to load'
     set_modules_load
 
-    echo 'Configuring initial ramdisk'
-    set_initcpio
-
     echo 'Setting initial daemons'
     set_daemons "$TMP_ON_TMPFS"
 
@@ -203,7 +200,7 @@ install_packages() {
     local packages=''
 
     # General utilities/libraries
-    packages+=' alsa-utils sudo'
+    packages+=' alsa-utils snapd sudo'
 
     # Development packages
     packages+=' git'
@@ -288,32 +285,6 @@ EOF
 
 set_modules_load() {
     echo 'microcode' > /etc/modules-load.d/intel-ucode.conf
-}
-
-set_initcpio() {
-    local vid
-
-    if [ "$VIDEO_DRIVER" = "i915" ]
-    then
-        vid='i915'
-    elif [ "$VIDEO_DRIVER" = "nouveau" ]
-    then
-        vid='nouveau'
-    elif [ "$VIDEO_DRIVER" = "radeon" ]
-    then
-        vid='radeon'
-    fi
-
-    # Set MODULES with your video driver
-    cat > /etc/mkinitcpio.conf <<EOF
-
-# MODULES
-MODULES="ext4 $vid"
-
-HOOKS="base udev autodetect modconf block keymap keyboard $encrypt lvm2 resume filesystems fsck"
-EOF
-
-    mkinitcpio -p linux
 }
 
 set_daemons() {
