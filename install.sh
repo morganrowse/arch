@@ -25,6 +25,9 @@ setup() {
     echo 'Installing base system'
     install_base
 
+    echo 'Setting fstab'
+    set_fstab
+
     echo 'Chrooting into installed system to continue setup...'
     cp $0 /mnt/setup.sh
     arch-chroot /mnt ./setup.sh chroot
@@ -63,9 +66,6 @@ configure() {
 
     echo 'Setting hosts file'
     set_hosts "$HOSTNAME"
-
-    echo 'Setting fstab'
-    set_fstab
 
     echo 'Configuring sudo'
     set_sudoers
@@ -181,6 +181,7 @@ EOT
 }
 
 set_fstab() {
+    mkdir /mnt/etc/fstab
     genfstab -U /mnt >> /mnt/etc/fstab
 }
 
