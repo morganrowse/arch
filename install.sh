@@ -158,7 +158,7 @@ set_hostname() {
 }
 
 set_timezone() {
-    ln -s /usr/share/zoneinfo/Africa/Johannesburg /etc/localtime
+    ln -sf /usr/share/zoneinfo/Africa/Johannesburg /etc/localtime
 }
 
 set_locale() {
