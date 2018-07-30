@@ -37,10 +37,10 @@ setup() {
     partition_drive "$DRIVE"
 
     echo 'Formatting filesystems'
-    format_filesystems "$DRIVE"
+    format_filesystems "$boot_dev"
 
     echo 'Mounting filesystems'
-    mount_filesystems "$DRIVE"
+    mount_filesystems "$boot_dev"
 
     echo 'Installing base system'
     install_base
@@ -62,6 +62,7 @@ setup() {
 
 configure() {
     local boot_dev="$DRIVE"1
+    local lvm_dev="$DRIVE"2
 
     # echo 'Installing additional packages'
     # install_packages
@@ -100,33 +101,48 @@ configure() {
 }
 
 partition_drive() {
-    local drive="$1"; shift
+    local dev="$1"; shift
 
-    parted -s "$drive" \
+    parted -s "$dev" \
         mklabel gpt \
-        mkpart primary ext2 1MiB 513MiB \
-        mkpart primary linux-swap 513M 3G \
-        mkpart primary ext4 3G 100% \
-        set 1 boot on \
-        quit
+        mkpart ESP fat32 1MiB 513MiB \
+        mkpart primary linux-swap 513M 3G
+        mkpart primary ext4 3G 100% |
+        set 1 boot on
+}
+
+setup_lvm() {
+    local partition="$1"; shift
+    local volgroup="$1"; shift
+
+    pvcreate "$partition"
+    vgcreate "$volgroup" "$partition"
+
+    # Create a 1GB swap partition
+    lvcreate -C y -L1G "$volgroup" -n swap
+
+    # Use the rest of the space for root
+    lvcreate -l '+100%FREE' "$volgroup" -n root
+
+    # Enable the new volumes
+    vgchange -ay
 }
 
 format_filesystems() {
-    local drive="$1"; shift
+    local boot_dev="$1"; shift
 
-    mkfs.ext2 -L boot "$drive"1
-    mkfs.ext4 -L root "$drive"3
-
-    mkswap "$drive"2
-    swapon "$drive"2
+    mkfs.ext2 -L boot "$boot_dev"
+    mkfs.ext4 -L root /dev/vg00/root
+    mkswap /dev/vg00/swap
 }
 
 mount_filesystems() {
-    local drive="$1"; shift
+    local boot_dev="$1"; shift
 
-    mount "$drive"3 /mnt
+    mount /dev/vg00/root /mnt
     mkdir /mnt/boot
-    mount "$drive"1 /mnt/boot
+    mount "$boot_dev" /mnt/boot
+    swapon /dev/vg00/swap
 }
 
 install_base() {
