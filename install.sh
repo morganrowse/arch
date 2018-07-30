@@ -9,18 +9,6 @@ HOSTNAME='arch'
 # Main user to create (by default, added to wheel group, and others).
 USER_NAME='morgan'
 
-# System timezone.
-TIMEZONE='Africa/Johannesburg'
-
-# Have /tmp on a tmpfs or not.  Leave blank to disable.
-# Only leave this blank on systems with very little RAM.
-TMP_ON_TMPFS='TRUE'
-
-KEYMAP='us'
-# KEYMAP='dvorak'
-
-VIDEO_DRIVER="nouveau"
-
 setup() {
     local boot_dev="$DRIVE"1
     local data_dev="$DRIVE"2
@@ -65,7 +53,7 @@ configure() {
     set_hostname "$HOSTNAME"
 
     echo 'Setting timezone'
-    set_timezone "$TIMEZONE"
+    set_timezone
 
     echo 'Setting locale'
     set_locale
@@ -77,7 +65,7 @@ configure() {
     set_hosts "$HOSTNAME"
 
     echo 'Setting fstab'
-    set_fstab "$TMP_ON_TMPFS" "$boot_dev"
+    set_fstab
 
     echo 'Configuring sudo'
     set_sudoers
@@ -87,6 +75,9 @@ configure() {
 
     echo 'Creating initial user'
     create_user "$USER_NAME"
+
+    echo 'Setting GRUB'
+    set_grub
 
     rm /setup.sh
 }
@@ -139,7 +130,7 @@ install_packages() {
     local packages=''
 
     # General utilities/libraries
-    packages+=' alsa-utils snapd sudo'
+    packages+=' alsa-utils efibootmgr grub snapd sudo'
 
     # Development packages
     packages+=' git'
@@ -167,20 +158,17 @@ set_hostname() {
 }
 
 set_timezone() {
-    local timezone="$1"; shift
-
-    ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+    ln -s /usr/share/zoneinfo/Africa/Johannesburg /etc/localtime
 }
 
 set_locale() {
-    echo 'LANG="en_US.UTF-8"' >> /etc/locale.conf
-    echo 'LC_COLLATE="C"' >> /etc/locale.conf
-    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+    echo 'LANG="en_ZA.UTF-8"' >> /etc/locale.conf
+    echo "en_ZA.UTF-8 UTF-8" >> /etc/locale.gen
     locale-gen
 }
 
 set_keymap() {
-    echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
+    echo "KEYMAP=us" > /etc/vconsole.conf
 }
 
 set_hosts() {
@@ -193,22 +181,7 @@ EOT
 }
 
 set_fstab() {
-    local tmp_on_tmpfs="$1"; shift
-    local boot_dev="$1"; shift
-
-    local boot_uuid=$(get_uuid "$boot_dev")
-
-    cat <<EOT >> /etc/fstab
-#
-# /etc/fstab: static file system information
-#
-# <file system> <dir>    <type> <options>    <dump> <pass>
-
-/dev/vg00/swap none swap  sw                0 0
-/dev/vg00/root /    ext4  defaults,relatime 0 1
-
-UUID=$boot_uuid /boot ext2 defaults,relatime 0 2
-EOT
+    genfstab -U /mnt >> /mnt/etc/fstab
 }
 
 set_sudoers() {
@@ -243,6 +216,12 @@ create_user() {
 get_uuid() {
     blkid -o export "$1" | grep UUID | awk -F= '{print $2}'
 }
+
+set_grub() {
+    grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
+    grub-mkconfig -o /boot/grub/grub.cfg
+}
+
 
 set -ex
 
