@@ -75,11 +75,11 @@ configure() {
     local boot_dev="$DRIVE"1
     local lvm_dev="$DRIVE"2
 
-    echo 'Installing additional packages'
-    install_packages
+    # echo 'Installing additional packages'
+    # install_packages
 
-    echo 'Clearing package tarballs'
-    clean_packages
+    # echo 'Clearing package tarballs'
+    # clean_packages
 
     echo 'Setting hostname'
     set_hostname "$HOSTNAME"
@@ -99,17 +99,8 @@ configure() {
     echo 'Setting fstab'
     set_fstab "$TMP_ON_TMPFS" "$boot_dev"
 
-    echo 'Setting initial modules to load'
-    set_modules_load
-
-    echo 'Setting initial daemons'
-    set_daemons "$TMP_ON_TMPFS"
-
     echo 'Configuring sudo'
     set_sudoers
-
-    echo 'Configuring slim'
-    set_slim
 
     if [ -z "$ROOT_PASSWORD" ]
     then
@@ -258,10 +249,10 @@ set_keymap() {
 set_hosts() {
     local hostname="$1"; shift
 
-    cat > /etc/hosts <<EOF
+    cat <<EOT >> /etc/hosts
 127.0.0.1 localhost.localdomain localhost $hostname
 ::1       localhost.localdomain localhost $hostname
-EOF
+EOT
 }
 
 set_fstab() {
@@ -270,7 +261,7 @@ set_fstab() {
 
     local boot_uuid=$(get_uuid "$boot_dev")
 
-    cat > /etc/fstab <<EOF
+    cat <<EOT >> /etc/fstab
 #
 # /etc/fstab: static file system information
 #
@@ -280,26 +271,11 @@ set_fstab() {
 /dev/vg00/root /    ext4  defaults,relatime 0 1
 
 UUID=$boot_uuid /boot ext2 defaults,relatime 0 2
-EOF
-}
-
-set_modules_load() {
-    echo 'microcode' > /etc/modules-load.d/intel-ucode.conf
-}
-
-set_daemons() {
-    local tmp_on_tmpfs="$1"; shift
-
-    systemctl enable dhcpcd@eth0.service
-
-    if [ -z "$tmp_on_tmpfs" ]
-    then
-        systemctl mask tmp.mount
-    fi
+EOT
 }
 
 set_sudoers() {
-    cat > /etc/sudoers <<EOF
+    cat  <<EOT >> /etc/sudoers
 ##
 ## User privilege specification
 ##
@@ -325,7 +301,7 @@ root ALL=(ALL) ALL
 ## Read drop-in files from /etc/sudoers.d
 ## (the '#' here does not indicate a comment)
 #includedir /etc/sudoers.d
-EOF
+EOT
 
     chmod 440 /etc/sudoers
 }
