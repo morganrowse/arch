@@ -106,7 +106,7 @@ partition_drive() {
         mklabel gpt \
         mkpart primary ext2 1MiB 513MiB \
         set 1 boot on \
-        mkpart primary linux-swap 513M 3G \
+        mkpart primary linux-swap 513MiB 3G \
         mkpart primary ext4 3G 100%
 }
 
