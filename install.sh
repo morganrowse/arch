@@ -181,6 +181,7 @@ EOT
 }
 
 set_fstab() {
+    mkdir /mnt/etc
     genfstab -U /mnt >> /mnt/etc/fstab
 }
 
