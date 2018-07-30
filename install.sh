@@ -6,14 +6,8 @@ DRIVE='/dev/sda'
 # Hostname of the installed machine.
 HOSTNAME='arch'
 
-# Root password (leave blank to be prompted).
-ROOT_PASSWORD=
-
 # Main user to create (by default, added to wheel group, and others).
 USER_NAME='morgan'
-
-# The main user's password (leave blank to be prompted).
-USER_PASSWORD=
 
 # System timezone.
 TIMEZONE='Africa/Johannesburg'
@@ -102,25 +96,11 @@ configure() {
     echo 'Configuring sudo'
     set_sudoers
 
-    if [ -z "$ROOT_PASSWORD" ]
-    then
-        echo 'Enter the root password:'
-        stty -echo
-        read ROOT_PASSWORD
-        stty echo
-    fi
     echo 'Setting root password'
-    set_root_password "$ROOT_PASSWORD"
+    set_root_password
 
-    if [ -z "$USER_PASSWORD" ]
-    then
-        echo "Enter the password for user $USER_NAME"
-        stty -echo
-        read USER_PASSWORD
-        stty echo
-    fi
     echo 'Creating initial user'
-    create_user "$USER_NAME" "$USER_PASSWORD"
+    create_user "$USER_NAME"
 
     echo 'Building locate database'
     update_locate
@@ -283,20 +263,6 @@ root ALL=(ALL) ALL
 ## Uncomment to allow members of group wheel to execute any command
 %wheel ALL=(ALL) ALL
 
-## Same thing without a password
-# %wheel ALL=(ALL) NOPASSWD: ALL
-
-## Uncomment to allow members of group sudo to execute any command
-# %sudo ALL=(ALL) ALL
-
-## Uncomment to allow any user to run sudo if they know the password
-## of the user they are running the command as (root by default).
-# Defaults targetpw  # Ask for the password of the target user
-# ALL ALL=(ALL) ALL  # WARNING: only use this together with 'Defaults targetpw'
-
-%rfkill ALL=(ALL) NOPASSWD: /usr/sbin/rfkill
-%network ALL=(ALL) NOPASSWD: /usr/bin/netcfg, /usr/bin/wifi-menu
-
 ## Read drop-in files from /etc/sudoers.d
 ## (the '#' here does not indicate a comment)
 #includedir /etc/sudoers.d
@@ -306,18 +272,15 @@ EOT
 }
 
 set_root_password() {
-    local password="$1"; shift
-
-    echo -en "$password\n$password" | passwd
+    passwd
 }
 
 create_user() {
     local name="$1"; shift
-    local password="$1"; shift
 
-    echo -en "$password\n$password" | passwd "$name"
+    useradd -m -g users -G wheel -s /bin/bash "$name"
+    passwd "$name"
 }
-
 update_locate() {
     updatedb
 }
