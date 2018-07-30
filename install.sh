@@ -130,7 +130,7 @@ install_packages() {
     local packages=''
 
     # General utilities/libraries
-    packages+=' alsa-utils efibootmgr grub snapd sudo'
+    packages+=' alsa-utils efibootmgr grub sudo'
 
     # Development packages
     packages+=' git'
@@ -221,7 +221,6 @@ set_grub() {
     grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
     grub-mkconfig -o /boot/grub/grub.cfg
 }
-
 
 set -ex
 
