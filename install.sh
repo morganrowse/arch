@@ -244,7 +244,7 @@ set_hostname() {
 set_timezone() {
     local timezone="$1"; shift
 
-    ln -sT "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+    ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
 }
 
 set_locale() {
