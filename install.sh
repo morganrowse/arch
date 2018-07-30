@@ -131,7 +131,6 @@ configure() {
 partition_drive() {
     local dev="$1"; shift
 
-    # 100 MB /boot partition, everything else under LVM
     parted -s "$dev" \
         mklabel msdos \
         mkpart primary ext2 1 100M \
