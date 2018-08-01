@@ -25,12 +25,12 @@ setup() {
     echo 'Installing base system'
     install_base
 
+    echo 'Setting fstab'
+    set_fstab
+
     echo 'Chrooting into installed system to continue setup...'
     cp $0 /mnt/setup.sh
     arch-chroot /mnt ./setup.sh chroot
-
-    echo 'Setting fstab'
-    set_fstab
 
     if [ -f /mnt/setup.sh ]
     then
@@ -38,7 +38,7 @@ setup() {
         echo 'Make sure you unmount everything before you try to run this script again.'
     else
         echo 'Unmounting filesystems'
-        unmount_filesystems
+        unmount_filesy
         echo 'Done! Reboot system.'
     fi
 }
@@ -54,6 +54,9 @@ configure() {
 
     echo 'Setting hostname'
     set_hostname "$HOSTNAME"
+
+    echo 'Persist Network'
+    set_network
 
     echo 'Setting timezone'
     set_timezone
@@ -114,8 +117,6 @@ mount_filesystems() {
 }
 
 install_base() {
-    echo 'Server = http://mirrors.kernel.org/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
-
     pacstrap /mnt base base-devel
 }
 
@@ -130,7 +131,7 @@ install_packages() {
     local packages=''
 
     # General utilities/libraries
-    packages+=' alsa-utils efibootmgr grub sudo'
+    packages+=' alsa-utils efibootmgr grub sudo wget'
 
     # Development packages
     packages+=' git'
@@ -142,7 +143,7 @@ install_packages() {
     packages+=' intel-ucode'
 
     # Nvidia Drivers
-    packages+=' xf86-video-nouveau'
+    packages+=' nvidia nvidia-utils lib32-nvidia-utils'
 
     pacman -Sy --noconfirm $packages
 }
@@ -155,6 +156,10 @@ set_hostname() {
     local hostname="$1"; shift
 
     echo "$hostname" > /etc/hostname
+}
+
+set_network() {
+    systemctl enable dhcpcd
 }
 
 set_timezone() {
@@ -175,13 +180,12 @@ set_hosts() {
     local hostname="$1"; shift
 
     cat <<EOT >> /etc/hosts
-127.0.0.1 localhost.localdomain localhost $hostname
-::1       localhost.localdomain localhost $hostname
+127.0.0.1 localhost
+127.0.0.1 localhost.localdomain $hostname
 EOT
 }
 
 set_fstab() {
-    mkdir /mnt/etc
     genfstab -U /mnt >> /mnt/etc/fstab
 }
 
@@ -212,10 +216,6 @@ create_user() {
 
     useradd -m -g users -G wheel -s /bin/bash "$name"
     passwd "$name"
-}
-
-get_uuid() {
-    blkid -o export "$1" | grep UUID | awk -F= '{print $2}'
 }
 
 set_grub() {
