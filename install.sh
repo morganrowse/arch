@@ -129,7 +129,7 @@ install_packages() {
     local packages=''
 
     # General utilities/libraries
-    packages+=' alsa-utils efibootmgr grub sudo wget'
+    packages+=' alsa-utils efibootmgr grub sudo ttf-dejavu wget'
 
     # Development packages
     packages+=' git'
@@ -140,8 +140,11 @@ install_packages() {
     # On Intel processors
     packages+=' intel-ucode'
 
-    # Nvidia Drivers
+    # Nvidia drivers
     packages+=' nvidia nvidia-utils'
+    
+    # Window manager
+    packages+=' i3 i3-gaps'
 
     pacman -Sy --noconfirm $packages
 }
