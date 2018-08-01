@@ -143,7 +143,7 @@ install_packages() {
     packages+=' intel-ucode'
 
     # Nvidia Drivers
-    packages+=' nvidia nvidia-utils lib32-nvidia-utils'
+    packages+=' nvidia nvidia-utils'
 
     pacman -Sy --noconfirm $packages
 }
