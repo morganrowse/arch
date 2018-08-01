@@ -123,8 +123,6 @@ install_base() {
 unmount_filesystems() {
     umount /mnt/boot
     umount /mnt
-    swapoff /dev/vg00/swap
-    vgchange -an
 }
 
 install_packages() {
