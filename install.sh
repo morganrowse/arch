@@ -82,6 +82,9 @@ configure() {
     echo 'Setting GRUB'
     set_grub
 
+    echo 'Setting windows manager'
+    set_wm "$USER_NAME"
+
     rm /setup.sh
 }
 
@@ -222,6 +225,12 @@ create_user() {
 set_grub() {
     grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
     grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+set_wm() {
+    local name="$1"; shift
+    
+    echo "exec i3" > "/home/"$name"/.xinitrc
 }
 
 set -ex
