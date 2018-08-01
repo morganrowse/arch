@@ -38,7 +38,7 @@ setup() {
         echo 'Make sure you unmount everything before you try to run this script again.'
     else
         echo 'Unmounting filesystems'
-        unmount_filesy
+        unmount_filesystems
         echo 'Done! Reboot system.'
     fi
 }
