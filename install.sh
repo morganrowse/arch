@@ -230,7 +230,7 @@ set_grub() {
 set_wm() {
     local name="$1"; shift
     
-    echo "exec i3" > "/home/"$name"/.xinitrc
+    echo "exec i3" > "/home/"$name"/.xinitrc"
 }
 
 set -ex
