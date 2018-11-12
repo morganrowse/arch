@@ -46,9 +46,6 @@ setup() {
 configure() {
     local boot_dev="$DRIVE"1
 
-    echo 'Installing additional packages'
-    install_packages
-
     echo 'Clearing package tarballs'
     clean_packages
 
@@ -120,36 +117,12 @@ mount_filesystems() {
 }
 
 install_base() {
-    pacstrap /mnt base base-devel
+    pacstrap /mnt base base-devel alsa-utils efibootmgr grub sudo ttf-dejavu wget git xorg-apps xorg-server xorg-xinit xterm intel-ucode nvidia nvidia-utils i3 i3-gaps
 }
 
 unmount_filesystems() {
     umount /mnt/boot
     umount /mnt
-}
-
-install_packages() {
-    local packages=''
-
-    # General utilities/libraries
-    packages+=' alsa-utils efibootmgr grub sudo ttf-dejavu wget'
-
-    # Development packages
-    packages+=' git'
-
-    # Xserver
-    packages+=' xorg-apps xorg-server xorg-xinit xterm'
-
-    # On Intel processors
-    packages+=' intel-ucode'
-
-    # Nvidia drivers
-    packages+=' nvidia nvidia-utils'
-    
-    # Window manager
-    packages+=' i3 i3-gaps'
-
-    pacman -Sy --noconfirm $packages
 }
 
 clean_packages() {
