@@ -4,19 +4,19 @@ Sets up Arch linux with partitions and an x-server running i3
 
 ## Usage
 
-First boot an arch linux iso
+First boot an arch linux iso, then run the following commands
 
+### Download the install script
 ```bash
-# Download the install script
 $ wget raw.githubusercontent.com/morganrowse/arch/master/install.sh
 ```
 
+### Allow the system to execute the install script
 ```bash
-# Allow the system to execute the install script
 $ chmod +x install.sh
 ```
 
+### Run the install script
 ```bash
-# Run the install script
 $ ./install.sh
 ```
